@@ -36,11 +36,8 @@ trait HasPeripheryGPS extends BaseSubsystem {
   // instantiate cordic chain
   val gpsChain = LazyModule(new GPSThing(GPSParams(32, 32)))
   // connect memory interfaces to pbus
-  //pbus.toVariableWidthSlave(Some("cordicWrite")) {
-  //  cordicChain.writeQueue.mem.get
-  //}
-  pbus.toVariableWidthSlave(Some("gpsRead")) {
-    cordicChain.readQueue.mem.get
+  pbus.toVariableWidthSlave(Some("gpsRead")) {  //TODO is this an arbitrary name
+    gpsChain.readQueue.mem.get
   }
 }
 
