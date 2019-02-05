@@ -102,7 +102,6 @@ class TLReadQueue
 
 }
 
-//TODO add AXI4 version of the readqueue
 
 class GpsThing
 (
@@ -157,16 +156,3 @@ GPSParams: GPSParams[T]
 
 //TODO create AXI version of GpsBlock
 
-//class GpsThing
-//(
-//  val width: Int = 4
-//)(implicit p: Parameters) extends LazyModule {
-//  //instantiate lazy modules
-//  val adc = LazyModule(new AdcModule(inputWidth = width)) //TODO fix these instantiations
-//  val dspQueue = LazyModule(new AXI4DspQueue(depth=16))
-//  val readQueue = LazyModule(new ReadQueue(depth))
-//
-//  readQueue.streamNode := dspQueue.streamNode := writeQueue.streamNode
-//
-//  lazy val module = new LazyModuleImp(this)
-//}

@@ -28,7 +28,7 @@ abstract class AdcModule
     out.bits.last := false.B
 
     regmap(
-      0x0 -> Seq(RegField.w(1, out.valid)),  //TODO connect to valid? Does width have to be by byte?
+      0x0 -> Seq(RegField.w(8, out.valid)),  //TODO connect to valid? Does width have to be by byte?
     )
   }
 
@@ -55,7 +55,8 @@ class TLAdcModule (
 
 class AXI4AdcModule (
   val inputWidth: Int = 4,
-  val csrAddress = ?
-)(implicit p: Parameters) extends AdcModule(inputWidth) with AXI4HasCSR {
-
+  val csrAddress: AddressSet = AddressSet(0x0, 0xffff)
+  val beatBytes: Int = 8
+)(implicit p: Parameters) extends AdcModule(inputWidth=inputWidth) with AXI4HasCSR {
+  override val mem = Some(AXI4RegisterNode(address = csrAddress, beatBytes = beatBytes))
 }
