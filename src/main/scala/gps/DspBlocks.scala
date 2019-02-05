@@ -8,37 +8,37 @@ import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.regmapper._
 import freechips.rocketchip.tilelink._
 
-//start by writing ReadQueue that is purely an AXI version
-class AXI4ReadQueue[AXI4MasterPortParameters, AXI4SlavePortParameters, AXI4EdgeParameters, AXI4EdgeParameters, AXI4Bundle](
-  val depth: Int = 8, 
-  val streamParameters: AXI4StreamSlaveParameters = AXI4StreamSlaveParameters()
-  val csrAddress: AddressSet = AddressSet(0x0, 0xffff)
-  val beatBytes: Int = 8
-)(implicit p: Parameters)
-  extends DspBlock[AXI4MasterPortParameters, AXI4SlavePortParameters, AXI4EdgeParameters, AXI4EdgeParameters, AXI4Bundle] with AXI4HasCSR {
-
-  val streamNode = AXI4StreamSlaveNode(streamParameters)
-  
-  lazy val module  new LazyModuleImp(this) {
-    val (in, _) = streamNode.in.unzip
-
-    val width = in.params.n * 8
-    val queue = Module(new Queue(UInt(in.params.dataBits.W), depth)) //TODO checkout definition of dataBits
-    queue.io.enq.valid := in.valid
-    queue.io.enq.bits := in.bits.data
-    in.bits.last := false.B
-    in.ready := queue.io.enq.ready
-    
-    regmap(
-      0x0 -> Seq(RegField.r(width, queue.io.deq)),
-      (width+7)/8 -> Seq(RegField.r(width, queue.io.count))
-    )
-
-  }
-
-  override val mem = Some(AXI4RegisterNode(address = csrAddress, beatBytes = beatBytes))
-
-}
+// //start by writing ReadQueue that is purely an AXI version
+// class AXI4ReadQueue[AXI4MasterPortParameters, AXI4SlavePortParameters, AXI4EdgeParameters, AXI4EdgeParameters, AXI4Bundle](
+//   val depth: Int = 8, 
+//   val streamParameters: AXI4StreamSlaveParameters = AXI4StreamSlaveParameters()
+//   val csrAddress: AddressSet = AddressSet(0x0, 0xffff)
+//   val beatBytes: Int = 8
+// )(implicit p: Parameters)
+//   extends DspBlock[AXI4MasterPortParameters, AXI4SlavePortParameters, AXI4EdgeParameters, AXI4EdgeParameters, AXI4Bundle] with AXI4HasCSR {
+// 
+//   val streamNode = AXI4StreamSlaveNode(streamParameters)
+//   
+//   lazy val module  new LazyModuleImp(this) {
+//     val (in, _) = streamNode.in.unzip
+// 
+//     val width = in.params.n * 8
+//     val queue = Module(new Queue(UInt(in.params.dataBits.W), depth)) //TODO checkout definition of dataBits
+//     queue.io.enq.valid := in.valid
+//     queue.io.enq.bits := in.bits.data
+//     in.bits.last := false.B
+//     in.ready := queue.io.enq.ready
+//     
+//     regmap(
+//       0x0 -> Seq(RegField.r(width, queue.io.deq)),
+//       (width+7)/8 -> Seq(RegField.r(width, queue.io.count))
+//     )
+// 
+//   }
+// 
+//   override val mem = Some(AXI4RegisterNode(address = csrAddress, beatBytes = beatBytes))
+// 
+// }
 
 
 
@@ -74,8 +74,6 @@ abstract class ReadQueue
   }
 }
 
-
-//TODO need to make an AXI flavor of read queue instead of TL
 /**
   * TLDspBlock specialization of ReadQueue
   * @param depth number of entries in the queue
@@ -86,7 +84,7 @@ abstract class ReadQueue
 class TLReadQueue
 (
   depth: Int = 8,
-  csrAddress: AddressSet = AddressSet(0x2100, 0xff), //TODO change addressing?
+  csrAddress: AddressSet = AddressSet(0x2100, 0xff), //TODO change addressing
   beatBytes: Int = 8
 )(implicit p: Parameters) extends ReadQueue(depth) with TLHasCSR {
   val devname = "tlQueueOut"
@@ -102,6 +100,14 @@ class TLReadQueue
 
 }
 
+// AXI4DspBlock specialization of ReadQueue
+class AXI4ReadQueue(
+  depth: Int = 8,
+  csrAddress: AddressSet = AddressSet(0x2200, 0xff), //TODO change addressing
+  beatBytes: Int = 8
+)(implicit p: Parameters) extends ReadQueue(depth) with TLHasCSR {
+  override val mem = Some(AXI4RegisterNode(address = csrAddress, beatBytes = beatBytes))
+}
 
 class GpsThing
 (

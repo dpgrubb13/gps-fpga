@@ -54,9 +54,9 @@ class TLAdcModule (
 
 
 class AXI4AdcModule (
-  val inputWidth: Int = 4,
-  val csrAddress: AddressSet = AddressSet(0x0, 0xffff)
-  val beatBytes: Int = 8
+  inputWidth: Int = 4,
+  csrAddress: AddressSet = AddressSet(0x0, 0xffff)
+  beatBytes: Int = 8
 )(implicit p: Parameters) extends AdcModule(inputWidth=inputWidth) with AXI4HasCSR {
   override val mem = Some(AXI4RegisterNode(address = csrAddress, beatBytes = beatBytes))
 }
